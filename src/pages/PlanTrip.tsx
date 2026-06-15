@@ -1,7 +1,42 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowRight, Lightbulb, Map as MapIcon, Image as ImageIcon, ChevronRight, Check, Globe } from 'lucide-react';
+import { ArrowRight, Lightbulb, Map as MapIcon, Check, Globe, Heart, Search, MapPin, ChevronRight } from 'lucide-react';
 import { fetchAccommodations } from '../services/travelService';
+import UdaipurMap from '../components/UdaipurMap';
+
+const udaipurDescriptions: Record<string, string> = {
+  "udaipur-1": "Picturesque views of Lake Pichola with sprawling gardens, perfect for a peaceful retreat.",
+  "udaipur-4": "Opulent architecture nestled near Fateh Sagar Lake, featuring luxurious pools and grand dining.",
+  "udaipur-5": "Perched on the hills with majestic valleys and lakes below, offering a royal lifestyle experience.",
+  "udaipur-6": "A boutique heritage stay facing Swaroop Sagar Lake, combining modern comfort with Rajputana charm.",
+  "udaipur-7": "Famous for its rooftop pool and romantic white interiors, an oasis in the heart of the old city.",
+  "udaipur-8": "Perched on Ambavgarh hill offering stunning panoramic views of Lake Fatehsagar and the city.",
+  "udaipur-9": "A premium yet affordable stay offering vibrant aesthetics and close proximity to cultural spots.",
+  "udaipur-10": "Modern amenities and cozy rooms, ideal for travelers seeking comfort near the city center.",
+  "udaipur-11": "A palatial resort boasting the city's largest pool and exquisite lakeside views of Fateh Sagar.",
+  "udaipur-12": "Lively hostel vibe with a rooftop cafe, perfect for solo travelers meeting over lake sunsets.",
+  "udaipur-13": "An exclusive private island resort on Udai Sagar Lake, offering unparalleled luxury and serenity.",
+  "udaipur-14": "Nestled on a private island in Jaisamand Lake, offering tranquil nature walks and bird watching.",
+  "udaipur-15": "Contemporary design and central location, providing an easy base to explore Udaipur's attractions.",
+  "udaipur-16": "A historic palace offering breathtaking views of Fateh Sagar Lake and the Aravalli hills.",
+  "udaipur-17": "Steeped in Mewari history, featuring antique decor and direct access to the City Palace complex.",
+  "udaipur-18": "World-renowned luxury with intricate domes, reflecting pools, and impeccable personalized service.",
+  "udaipur-19": "Set amidst the Aravalli ranges, featuring 117 villa-styled keys and stunning landscape views.",
+  "udaipur-21": "Modern luxury meets regal splendor with ESPA tented spa and sweeping views of City Palace.",
+  "udaipur-22": "An iconic floating marble palace offering private boat rides, Jiva Spa boat, and royal butler service.",
+  "udaipur-23": "Located in Sector 9, Complimentary INR 500 Hotel Credit redeemable on Food & Beverages.",
+  "udaipur-24": "9 minutes walk to Badi Lake, large pool overlooking Nathwaton Ka Gurha hills.",
+  "udaipur-25": "Entire 3-Bedroom Villa in Thoor, Riverside views with expansive lawns.",
+  "udaipur-26": "Located in Sukher, Free Cancellation till 24 hrs before check-in.",
+  "udaipur-27": "About a minute walk to Lake Pichola, beautifully lit cafe seating.",
+  "udaipur-28": "Sector 3 location, Rooftop restaurant and bar, spacious and clean rooms.",
+  "udaipur-29": "Located in Hiran Magri, Easy access to city viewpoints, peaceful environment.",
+  "udaipur-30": "Surrounded by the Aravalli range, open play area and yoga, amazing infrastructure and interiors.",
+  "udaipur-31": "Located 25.8 km from city centre, featuring Complimentary Hi-Tea and serene ambiance.",
+  "udaipur-32": "920 m drive to City Palace, stunning rooftop pool overlooking historical sights.",
+  "udaipur-33": "Located in Pahada, featuring Long Stay Benefits and 15% off Food & Beverage services.",
+  "udaipur-34": "Near Kumbhalgarh Fort, offering suites with private pool & Jacuzzi, plus Complimentary INR 500 Hotel Credit."
+};
 
 // --- MOCK DATA SEEDER ---
 // A simple hash function to assign deterministic rules based on hotel ID
@@ -13,18 +48,26 @@ const getMockHash = (str: string) => {
 
 const PlanTrip = () => {
   const [searchParams] = useSearchParams();
-  const [destination] = useState(searchParams.get('to') || 'Varanasi');
+  const [destination] = useState(searchParams.get('to') || '');
   const [startDate] = useState(searchParams.get('start') || '');
   const [endDate] = useState(searchParams.get('end') || '');
-  const [budget] = useState(searchParams.get('budget') || '');
+  const [budget, setBudget] = useState(searchParams.get('budget') || '');
   const [travelers] = useState(searchParams.get('travelers') || '');
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<any[]>([]);
   const [searchedCity, setSearchedCity] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Booking states
+  const [bookedHotels, setBookedHotels] = useState<string[]>([]);
+  const [bookingHotelId, setBookingHotelId] = useState<string | null>(null);
   
   // Sort State
   const [sortActive, setSortActive] = useState('Nearest to Center');
   const [pricePref, setPricePref] = useState('Price per Night');
+  
+  // Modal State
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false);
 
   // Filter States
   const [selectedStars, setSelectedStars] = useState<string[]>([]);
@@ -119,6 +162,14 @@ const PlanTrip = () => {
         if (!rulesMatch) return false;
       }
 
+      // 6. Search Query
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const matchesName = hotel.name.toLowerCase().includes(query);
+        const matchesLocality = hotel.type && hotel.type.toLowerCase().includes(query);
+        if (!matchesName && !matchesLocality) return false;
+      }
+
       return true;
     }).sort((a, b) => {
       if (sortActive === 'Price (Low to High)') return a.price - b.price;
@@ -136,7 +187,7 @@ const PlanTrip = () => {
       // Default: 'Nearest to Center' (mocked by ID length or keeping original order)
       return 0;
     });
-  }, [hotels, selectedPrices, selectedStars, selectedTypes, selectedChains, selectedRules, sortActive]);
+  }, [hotels, selectedPrices, selectedStars, selectedTypes, selectedChains, selectedRules, sortActive, searchQuery]);
 
   // Helper component for rendering filter sections
   const FilterSection = ({ title, options, state, setter }: { title: string, options: string[], state: string[], setter: any }) => (
@@ -162,11 +213,11 @@ const PlanTrip = () => {
   );
 
   return (
-    <main className="main-content animate-fade-in" style={{ display: 'block', paddingTop: '1.5rem', paddingBottom: '4rem' }}>
+    <main className="main-content mmt-light-theme" style={{ display: 'block', paddingTop: '1.5rem', paddingBottom: '4rem', background: '#f1f5f9', minHeight: '100vh', color: '#0f172a' }}>
       
       {startDate && endDate && (
         <div className="trip-summary-bar" style={{ 
-          background: 'rgba(255, 255, 255, 0.05)', 
+          background: 'rgba(30, 41, 59, 0.85)', 
           border: '1px solid #ff5a00', 
           borderRadius: '16px', 
           padding: '1rem 2rem', 
@@ -195,10 +246,39 @@ const PlanTrip = () => {
         </div>
       )}
 
-      <div className="search-layout-container">
+      <div className="search-layout-container mmt-layout">
         
         {/* LEFT SIDEBAR */}
-        <aside className="sidebar-filters" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+        <aside className="sidebar-filters mmt-sidebar">
+          {searchedCity.toLowerCase() === 'udaipur' ? (
+            <UdaipurMap hotels={filteredHotels} />
+          ) : (
+            <div className="mmt-map-card">
+              <div className="mmt-map-img"></div>
+              <button className="mmt-map-btn">EXPLORE ON MAP <MapPin size={14} /></button>
+            </div>
+          )}
+
+          <div className="mmt-filter-search" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Search size={16} color="#64748b" />
+            <input 
+              type="text" 
+              placeholder="Search for locality / hotel name" 
+              className="mmt-filter-search-input" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ flex: 1, paddingRight: searchQuery ? '24px' : '0' }}
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '14px', padding: '4px' }}
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
 
           <FilterSection 
@@ -262,22 +342,26 @@ const PlanTrip = () => {
         </aside>
 
         {/* RIGHT CONTENT */}
-        <div className="results-container">
+        <div className="results-container mmt-results">
           
-          <div className="results-header">
+          <div className="mmt-breadcrumbs">
+            <a href="#">Home</a> <ChevronRight size={12} /> <span>Hotels and more in {searchedCity || destination || 'City'}</span>
+          </div>
+
+          <div className="results-header mmt-results-header">
             <h1 className="results-title">
               {loading ? 'Searching...' : `${filteredHotels.length} Properties in ${searchedCity || destination}`}
             </h1>
-            <button className="explore-tips-btn">
-              <Lightbulb size={16} color="#eab308" /> Explore Travel Tips <ChevronRight size={14} />
+            <button className="explore-tips-btn mmt-explore-tips">
+              <Lightbulb size={16} color="#3b82f6" /> Explore Travel Tips <ArrowRight size={14} />
             </button>
           </div>
 
-          <div className="sorting-bar">
-            {['Price (Low to High)', 'Price (High to Low)', 'User Rating (Highest)', 'Lowest Price & Best Rated', 'Nearest to Center'].map(sortOption => (
+          <div className="sorting-bar mmt-sorting-bar">
+            {['Price (Low to High)', 'Price (High to Low)', 'User Rating (Highest)', 'Lowest Price & Best Rated', `Nearest to ${searchedCity || 'City Center'}`].map((sortOption) => (
               <div 
                 key={sortOption} 
-                className={`sort-pill ${sortActive === sortOption ? 'active' : ''}`}
+                className={`sort-pill mmt-sort-tab ${sortActive === sortOption ? 'active' : ''}`}
                 onClick={() => setSortActive(sortOption)}
               >
                 {sortOption}
@@ -294,11 +378,9 @@ const PlanTrip = () => {
             </div>
             <div className="promo-right">
               <p>Earn & redeem points on eligible properties for massive savings!</p>
-              <button className="learn-more-btn">Learn More</button>
+              <button className="learn-more-btn" onClick={() => setIsRewardsModalOpen(true)}>Learn More</button>
             </div>
           </div>
-
-          <h3 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.4rem' }}>Showing Properties in {searchedCity || destination}</h3>
 
           {loading ? (
             <div className="loading-state glass-panel">
@@ -310,10 +392,9 @@ const PlanTrip = () => {
               {filteredHotels.map((hotel, idx) => {
                 const taxes = Math.floor(hotel.price * 0.18);
                 const isTrending = getMockHash(hotel.id || hotel.name) % 5 === 0;
-                
                 return (
                   <div key={hotel.id || idx} style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div className="horizontal-hotel-card" style={{ marginBottom: hotel.offer ? '0' : '1.5rem', zIndex: 2, position: 'relative' }}>
+                    <div className="horizontal-hotel-card mmt-hotel-card">
                     {/* Left: Image */}
                     <div className="hhc-image-section">
                       <img 
@@ -321,99 +402,132 @@ const PlanTrip = () => {
                         alt={hotel.name} 
                         onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542314831-c6a4d27d6684?w=800&q=80'; }}
                       />
-                      <div className="hhc-photo-badge">
-                        <ImageIcon size={14} /> 33 Photos & Videos <ArrowRight size={14} />
+                      <div className="mmt-heart-icon">
+                        <Heart size={18} color="#fff" />
+                      </div>
+                      <div className="mmt-image-dots">
+                        <span></span><span className="active"></span><span></span><span></span>
+                      </div>
+                      <div className="hhc-photo-badge mmt-photo-badge">
+                        111 Photos & Videos <ArrowRight size={12} />
                       </div>
                       {isTrending && (
-                        <div style={{ position:'absolute', top:'1rem', left:'0', background:'#ef4444', color:'white', padding:'0.2rem 0.8rem', borderTopRightRadius:'12px', borderBottomRightRadius:'12px', fontSize:'0.8rem', fontWeight:'bold' }}>
-                          TRENDING
-                        </div>
+                        <div className="mmt-trending-badge">TRENDING</div>
                       )}
                     </div>
                     
                     {/* Middle: Details */}
-                    {/* Middle: Details */}
-                    <div className="hhc-info-section">
-                      <div className="hhc-header">
-                        <div>
-                          {hotel.badge && (
-                            <div style={{ display: 'inline-block', border: '1px solid #d4af37', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, color: '#d4af37', marginBottom: '0.5rem' }}>
-                              {hotel.badge}
-                            </div>
-                          )}
-                          <h4 className="hhc-name" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            {hotel.name} 
-                            {(hotel.badge || hotel.name.includes('StayVista')) && (
-                              <span style={{ color: '#000', letterSpacing: '2px', fontSize: '1rem' }}>★★★★★</span>
-                            )}
-                          </h4>
-                          <div className="hhc-location" style={{ color: '#0ea5e9', marginTop: '0.2rem' }}>
-                            <span>{hotel.locationDesc || `${searchedCity || 'City Center'} | ${hotel.type || 'Luxury Stay'}`}</span>
+                    <div className="hhc-info-section mmt-info-section">
+                        <div className="mmt-card-main-info">
+                          <h3 className="mmt-hotel-name">
+                            {hotel.name}
+                          </h3>
+                          <div className="hhc-location mmt-hotel-location">
+                            <a href="#">{searchedCity || 'City Center'}</a> | {hotel.type || '2.2 km drive to Fateh Sagar Lake'}
                           </div>
-                          {hotel.roomType && (
-                            <div style={{ fontWeight: 700, marginTop: '0.5rem', fontSize: '0.9rem', color: '#000' }}>
-                              <span style={{ color: '#38bdf8', marginRight: '6px' }}>|</span> {hotel.roomType}
-                            </div>
-                          )}
                         </div>
-                      </div>
 
-                      <div className="hhc-perks" style={{ marginTop: '1rem' }}>
+                      <div className="hhc-perks mmt-hotel-perks">
                         {hotel.perks ? hotel.perks.map((perk: string, i: number) => (
-                          <div key={i} className="hhc-perk" style={{ color: '#10b981' }}>
-                            <Check size={16} /> {perk}
+                          <div key={i} className="hhc-perk mmt-perk">
+                            <Check size={14} className="mmt-check" /> {perk}
                           </div>
                         )) : (
                           <>
-                            <div className="hhc-perk">
-                              <Check size={16} /> Book with ₹0 Payment
+                            <div className="hhc-perk mmt-perk">
+                              <Check size={14} className="mmt-check" /> Free Cancellation
                             </div>
-                            <div className="hhc-perk" style={{ color: '#0ea5e9' }}>
-                              <span style={{ fontSize:'1rem', marginRight:'4px' }}>•</span> Enjoy 500 credits on F&B!
+                            <div className="hhc-perk mmt-perk">
+                              <Check size={14} className="mmt-check" /> Book with ₹0 Payment
                             </div>
                           </>
                         )}
-                        {hotel.reviewHighlight && (
-                          <div className="hhc-perk" style={{ color: '#3b82f6', marginTop: '0.5rem' }}>
-                            <span style={{ fontSize:'1rem', marginRight:'4px' }}>✨</span> {hotel.reviewHighlight}
-                          </div>
-                        )}
+                        <div className="hhc-perk mmt-highlight-perk">
+                          <span className="mmt-sparkle">✨</span> {udaipurDescriptions[hotel.id] || "A highly rated property offering comfortable stays and excellent service."}
+                        </div>
                       </div>
                     </div>
 
+                    {/* Vertical Divider */}
+                    <div className="mmt-card-divider"></div>
+
                     {/* Right: Price & CTA */}
-                    <div className="hhc-price-section">
-                      <div className="hhc-rating-badge">
-                        <div className="rating-score-box">
-                          <span style={{ color: '#1e40af', fontWeight: 700, marginRight: '6px' }}>{hotel.ratingLabel || 'Very Good'}</span> 
-                          <span style={{ background:'#1e40af', color:'white', padding: '4px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.9rem' }}>
-                            {hotel.rating?.split('★')[0].trim() || '4.5'}
+                    <div className="hhc-price-section mmt-price-section">
+                      <div className="hhc-rating-badge mmt-rating-badge">
+                        <div className="mmt-rating-top">
+                          <span className="mmt-rating-label">Excellent</span> 
+                          <span className="mmt-rating-score">
+                            {hotel.rating?.split('★')[0].trim() || '4.8'}
                           </span>
                         </div>
-                        <span className="rating-text" style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '4px' }}>({hotel.ratingCount || '483 Ratings'})</span>
+                        <div className="mmt-rating-count">({hotel.ratingCount || '499 Ratings'})</div>
                       </div>
 
-                      <div className="hhc-price-box" style={{ textAlign: 'right', marginTop: 'auto' }}>
-                        {hotel.dealLabel && (
-                          <div style={{ color: '#059669', border: '1px solid #059669', borderRadius: '12px', padding: '2px 8px', fontSize: '0.7rem', display: 'inline-block', marginBottom: '4px' }}>
-                            {hotel.dealLabel}
-                          </div>
-                        )}
-                        {hotel.originalPrice && (
-                          <div style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem' }}>
-                            ₹ {hotel.originalPrice.toLocaleString()}
-                          </div>
-                        )}
-                        <div className="hhc-price" style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>₹ {(hotel.price || 57331).toLocaleString()}</div>
-                        <div className="hhc-taxes" style={{ color: '#64748b', fontSize: '0.85rem' }}>+ ₹ {(hotel.taxes || taxes).toLocaleString()} taxes & fees</div>
-                        <div style={{ color:'#94a3b8', fontSize:'0.85rem', marginBottom:'1rem' }}>Per Night</div>
-                        <a href="#" style={{ color: '#3b82f6', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 500 }}>Login to Book Now & Pay Later!</a>
+                      <div className="hhc-price-box mmt-price-box">
+                        <div className="hhc-price mmt-price">₹ {(hotel.price || 33000).toLocaleString()}</div>
+                        <div className="hhc-taxes mmt-taxes">+ ₹ {(hotel.taxes || taxes).toLocaleString()} taxes & fees</div>
+                        <div className="mmt-per-night" style={{ color: '#64748b', fontSize: '0.8rem', textAlign: 'right', marginBottom: '0.5rem' }}>Per Night</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          {bookedHotels.includes(hotel.id) && (
+                            <button
+                              onClick={() => {
+                                setBookedHotels(prev => prev.filter(id => id !== hotel.id));
+                                if (budget && !isNaN(Number(budget))) {
+                                  setBudget((Number(budget) + hotel.price).toString());
+                                }
+                              }}
+                              style={{
+                                color: 'white',
+                                background: '#ef4444',
+                                fontSize: '0.75rem',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '6px 12px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              Cancel booking
+                            </button>
+                          )}
+                          <button 
+                            className="reserve-btn" 
+                            disabled={bookedHotels.includes(hotel.id)}
+                            style={{
+                              background: bookedHotels.includes(hotel.id) ? '#10b981' : 'linear-gradient(93deg, #53b2fe, #065af3)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '8px 24px',
+                              fontWeight: '700',
+                              cursor: bookedHotels.includes(hotel.id) ? 'default' : 'pointer',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                              transition: 'background 0.3s'
+                            }}
+                            onClick={() => {
+                              if (!bookedHotels.includes(hotel.id)) {
+                                setBookingHotelId(hotel.id);
+                                setTimeout(() => {
+                                  setBookingHotelId(null);
+                                  setBookedHotels(prev => [...prev, hotel.id]);
+                                  if (budget && !isNaN(Number(budget))) {
+                                    setBudget((Number(budget) - hotel.price).toString());
+                                  }
+                                }, 2000);
+                              }
+                            }}
+                          >
+                            {bookedHotels.includes(hotel.id) ? (
+                              <span style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}><Check size={16} /> Booked</span>
+                            ) : 'Reserve'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
                   {hotel.offer && (
-                    <div style={{ background: '#dcfce7', padding: '0.6rem 1rem', fontSize: '0.85rem', color: '#065f46', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px', marginTop: '-12px', zIndex: 1, position: 'relative', marginBottom: '1.5rem' }}>
+                    <div className="mmt-hotel-offer">
                       {hotel.offer}
                     </div>
                   )}
@@ -422,15 +536,51 @@ const PlanTrip = () => {
             })}
             </div>
           ) : (
-            <div className="empty-state glass-panel" style={{ padding: '4rem', textAlign: 'center' }}>
-              <MapIcon size={48} className="icon-muted" style={{ marginBottom: '1rem', opacity: 0.5, margin: '0 auto 1rem auto' }} />
-              <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>No properties found</h3>
-              <p style={{ color: '#94a3b8' }}>Try adjusting your filters or search criteria.</p>
+            <div className="empty-state mmt-empty-state">
+              <MapIcon size={48} color="#94a3b8" style={{ marginBottom: '1rem', opacity: 0.5, margin: '0 auto 1rem auto' }} />
+              <h3 style={{ color: '#0f172a', marginBottom: '0.5rem' }}>
+                {searchedCity ? 'No properties found' : 'Select a destination'}
+              </h3>
+              <p style={{ color: '#64748b' }}>
+                {searchedCity ? 'Try adjusting your filters or search criteria.' : 'Please enter a destination in the search bar above to plan your trip.'}
+              </p>
             </div>
           )}
 
         </div>
       </div>
+
+      {/* Booking Loading Overlay */}
+      {bookingHotelId && (
+        <div className="booking-overlay">
+          <div className="booking-animation-container">
+            <div className="hotel-2d-animation">
+              <div className="css-hotel-wrapper">
+                <div className="css-hotel-sign">HOTEL</div>
+                <div className="css-hotel-body">
+                  <div className="css-hotel-windows"></div>
+                  <div className="css-hotel-entrance">
+                    <div className="css-hotel-awning"></div>
+                    <div className="css-hotel-door"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="hotel-2d-sparkles">✨</div>
+            </div>
+            <div className="booking-text">Confirming your reservation...</div>
+          </div>
+        </div>
+      )}
+
+      {/* Rewards Modal */}
+      {isRewardsModalOpen && (
+        <div className="rewards-modal-overlay" onClick={() => setIsRewardsModalOpen(false)}>
+          <div className="rewards-modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal-btn" onClick={() => setIsRewardsModalOpen(false)}>&times;</button>
+            <img src="/rewards-modal.png" alt="GoYatra Circle Rewards" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '12px' }} />
+          </div>
+        </div>
+      )}
     </main>
   );
 };

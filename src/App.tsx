@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   MapPin, 
   User,
@@ -19,7 +19,14 @@ import Rides from './pages/Rides';
 import Food from './pages/Food';
 import Dashboard from './pages/Dashboard';
 import Corporate from './pages/Corporate';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Careers from './pages/Careers';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Cookies from './pages/Cookies';
 import SaathiChatbot from './components/SaathiChatbot';
+import AgentPortal from './pages/AgentPortal';
 import './index.css';
 
 function App() {
@@ -30,6 +37,9 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loginInput, setLoginInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [authFormType, setAuthFormType] = useState<'login' | 'signup'>('login');
 
   const handleGoogleSignIn = async () => {
     try {
@@ -90,7 +100,7 @@ function App() {
                   <User size={24} color="#3b82f6" />
                 </div>
                 <div className="login-text-box">
-                  <h4>Customer Login</h4>
+                  <h4>Customer Login or Sign Up</h4>
                   <p>Login & check bookings</p>
                 </div>
               </div>
@@ -106,7 +116,10 @@ function App() {
                   <p>Login corporate account</p>
                 </div>
               </div>
-              <div className="login-option">
+              <div className="login-option" onClick={() => {
+                navigate('/agent-portal');
+                setIsLoginOpen(false);
+              }}>
                 <div className="login-icon-box">
                   <Headphones size={24} color="#3b82f6" />
                 </div>
@@ -143,57 +156,96 @@ function App() {
         <Route path="/food" element={<Food />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/corporate" element={<Corporate />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/agent-portal" element={<AgentPortal onOpenAuth={(type) => {
+          setAuthFormType(type);
+          setShowAuthModal(true);
+        }} />} />
       </Routes>
 
       {/* Auth Modal */}
       {showAuthModal && (
         <div className="auth-modal-overlay">
-          <div className="auth-modal">
+          <div className="auth-box">
             <button className="auth-close-btn" onClick={() => setShowAuthModal(false)}>✕</button>
-            <div className="auth-banner">
-              <div className="auth-banner-text">
-                <p>First-Time User Offer!</p>
-                <h3>Grab Up to <span>20% OFF*</span><br/>on Your 1st Travel Bookings</h3>
+            <h2 className="auth-box-title">{authFormType === 'login' ? 'Login Form' : 'Signup Form'}</h2>
+            
+            <div className="auth-toggle-container">
+              <div 
+                className={`auth-toggle-btn ${authFormType === 'login' ? 'active' : ''}`}
+                onClick={() => setAuthFormType('login')}
+              >
+                Login
+              </div>
+              <div 
+                className={`auth-toggle-btn ${authFormType === 'signup' ? 'active' : ''}`}
+                onClick={() => setAuthFormType('signup')}
+              >
+                Signup
               </div>
             </div>
-            <div className="auth-content">
-              <h2>Login or Create an account</h2>
+
+            <div className="auth-form">
               <input 
-                type="text" 
-                placeholder="Email ID or Mobile Number" 
-                className="auth-input" 
+                type="email" 
+                placeholder="Email Address" 
+                className="auth-box-input"
                 value={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
               />
+              <input 
+                type="password" 
+                placeholder="Password" 
+                className="auth-box-input"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+              />
+              
+              {authFormType === 'signup' && (
+                <input 
+                  type="password" 
+                  placeholder="Confirm password" 
+                  className="auth-box-input"
+                  value={confirmPasswordInput}
+                  onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                />
+              )}
+
+              {authFormType === 'login' && (
+                <div className="auth-forgot-password">
+                  <a href="#">Forgot password?</a>
+                </div>
+              )}
+
               <button 
-                className={`auth-continue-btn ${loginInput.trim().length > 4 ? 'active' : ''}`}
+                className="auth-box-submit"
                 onClick={() => {
-                  if (loginInput.trim().length > 4) {
-                    alert("Traditional email login is not yet configured. Please click the Google button below to sign in securely!");
-                  }
+                  alert("Traditional email login is not yet configured. Please use Google login!");
                 }}
               >
-                Continue
+                {authFormType === 'login' ? 'Login' : 'Signup'}
               </button>
-              
-              <div className="auth-divider">
-                <span>Or Login Via</span>
-              </div>
-              
-              <div className="auth-socials">
-                <button className="social-btn" onClick={handleGoogleSignIn}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20" />
-                  Google
-                </button>
-                <button className="social-btn">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook" width="20" />
-                  Facebook
-                </button>
-              </div>
-              
-              <p className="auth-terms">
-                By logging in, I understand & agree to GoYatra <a href="#">terms of use</a> and <a href="#">privacy policy</a>
-              </p>
+
+              {authFormType === 'login' ? (
+                <div className="auth-box-footer">
+                  Not a member? <span onClick={() => setAuthFormType('signup')}>Signup now</span>
+                </div>
+              ) : (
+                <div className="auth-box-footer">
+                  Already a member? <span onClick={() => setAuthFormType('login')}>Login now</span>
+                </div>
+              )}
+
+              <div className="auth-box-divider"><span>Or</span></div>
+              <button className="auth-box-google" onClick={handleGoogleSignIn}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20" />
+                Continue with Google
+              </button>
             </div>
           </div>
         </div>
@@ -215,15 +267,15 @@ function App() {
           <div className="footer-links">
             <div className="link-group">
               <h4>Company</h4>
-              <a href="#">About Us</a>
-              <a href="#">Contact</a>
-              <a href="#">Careers</a>
+              <Link to="/about">About Us</Link>
+              <Link to="/contact">Contact</Link>
+              <Link to="/careers">Careers</Link>
             </div>
             <div className="link-group">
               <h4>Legal</h4>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">Cookie Policy</a>
+              <Link to="/privacy">Privacy Policy</Link>
+              <Link to="/terms">Terms of Service</Link>
+              <Link to="/cookies">Cookie Policy</Link>
             </div>
           </div>
           <div className="footer-social">

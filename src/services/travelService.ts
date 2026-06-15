@@ -47,28 +47,40 @@ export async function fetchAccommodations(destination: string): Promise<any> {
         source: "makemytrip-udaipur-data",
         data: {
           accommodations: [
-            { id: "udaipur-1", name: "Trident Udaipur", type: "Premium Hotel", rating: "4.7★ (2983 Ratings)", price: 10738, images: ["/trident-udaipur.jpg"] },
+            { id: "udaipur-1", name: "Trident Udaipur", type: "Premium Hotel", rating: "4.7★ (2983 Ratings)", price: 10738, images: ["https://media.dpauls.com/drive-server/images/packages/india/udaipur/Trident-Udaipur-Exterior-View.jpg"] },
 
 
-            { id: "udaipur-4", name: "Wyndham Grand Udaipur Fatehsagar Lake", type: "Luxury Resort", rating: "4.6★ (144 Ratings)", price: 12113, images: ["/wyndham-grand-udaipur.jpg"] },
-            { id: "udaipur-5", name: "Aurika, Udaipur - Luxury by Lemon Tree Hotels", type: "Premium Hotel", rating: "4.6★ (1620 Ratings)", price: 7652, images: ["/aurika-udaipur.jpg"] },
-            { id: "udaipur-6", name: "SWAROOP VILAS - LAKE FACING BOUTIQUE HOTEL", type: "Heritage Palace", rating: "4.2★ (2544 Ratings)", price: 6468, images: ["/swaroop-vilas.jpg"] },
-            { id: "udaipur-7", name: "Hotel Udai Kothi", type: "Heritage Palace", rating: "3.4★ (1250 Ratings)", price: 4636, images: ["/hotel-udai-kothi.jpg"] },
-            { id: "udaipur-8", name: "Hilltop Palace - Best Located Lake Facing Hotel In Udaipur", type: "Premium Hotel", rating: "3.9★ (3734 Ratings)", price: 3290, images: ["/hotel-hilltop-palace.jpg"] },
-            { id: "udaipur-9", name: "Moustache Select Udaipur", type: "PG/Hostel", rating: "4.4★ (809 Ratings)", price: 2106, images: ["/moustache-select-udaipur.jpg"] },
-            { id: "udaipur-10", name: "Tripli Hotels Shaurya Residency", type: "Premium Hotel", rating: "3.8★", price: 1223, images: ["/tripli-hotels-shaurya-residency.png"] },
-            { id: "udaipur-11", name: "Radisson Blu Udaipur Palace Resort and Spa", type: "Heritage Palace", rating: "3.8★ (8826 Ratings)", price: 9965, images: ["/radisson-blu-udaipur.png"] },
-            { id: "udaipur-12", name: "Shalom Backpackers Udaipur | Rooms & Dorms", type: "PG/Hostel", rating: "3.8★ (910 Ratings)", price: 309, images: ["/shalom-backpackers-udaipur.jpg"] },
-            { id: "udaipur-13", name: "Raffles Udaipur", type: "Heritage Palace", rating: "4.8★ (166 Ratings)", price: 31467, images: ["/raffles-udaipur.jpg"] },
-            { id: "udaipur-14", name: "Jaisamand Island Resort", type: "Luxury Resort", rating: "4.4★ (1860 Ratings)", price: 12321, images: ["/jaisamand-island-resort.png"] },
-            { id: "udaipur-15", name: "Hotel City Express by Downtown", type: "Premium Hotel", rating: "4.0★ (1027 Ratings)", price: 1860, images: ["/hotel-city-express-by-downtown.png"] },
-            { id: "udaipur-16", name: "The Lalit Laxmi vilas palace", type: "Heritage Palace", rating: "4.4★ (1594 Ratings)", price: 11173, images: ["/lalit-laxmi-vilas.jpg"] },
-            { id: "udaipur-17", name: "Taj Fateh Prakash Palace, Udaipur", type: "Heritage Palace", rating: "4.6★ (652 Ratings)", price: 26312, images: ["/taj-fateh-prakash-udaipur.jpg"] },
-            { id: "udaipur-18", name: "The Oberoi Udaivilas", type: "Heritage Palace", rating: "4.8★ (491 Ratings)", price: 24977, images: ["/oberoi-udaivilas.jpg"] },
-            { id: "udaipur-19", name: "Mementos by ITC Hotels Ekaaya Udaipur", type: "Luxury Resort", rating: "4.8★ (91 Ratings)", price: 36992, images: ["/mementos-itc-udaipur.png"] },
+            { id: "udaipur-4", name: "Wyndham Grand Udaipur Fatehsagar Lake", type: "Luxury Resort", rating: "4.6★ (144 Ratings)", price: 12113, images: ["https://data.pc-web.cloud/mediaunit/images/_1200x630_crop_center-center_82_none/Pool-Facade.jpg?v=1765557747"] },
+            { id: "udaipur-5", name: "Aurika, Udaipur - Luxury by Lemon Tree Hotels", type: "Premium Hotel", rating: "4.6★ (1620 Ratings)", price: 7652, images: ["https://dynamic-media-cdn.tripadvisor.com/media/photo-o/21/7a/16/f3/night-view-at-pool.jpg?w=1200&h=-1&s=1"] },
+            { id: "udaipur-6", name: "SWAROOP VILAS - LAKE FACING BOUTIQUE HOTEL", type: "Heritage Palace", rating: "4.2★ (2544 Ratings)", price: 6468, images: ["https://pix10.agoda.net/hotelImages/99053/-1/f46feb936af19215fff60d62f877232c.jpg?ce=0&s=1024x768"] },
+            { id: "udaipur-7", name: "Hotel Udai Kothi", type: "Heritage Palace", rating: "3.4★ (1250 Ratings)", price: 4636, images: ["https://cf.bstatic.com/xdata/images/hotel/max1024x768/166914228.jpg?k=d430df383c8f5d01dc4b53197086385ea702711441bf684d027f7aba8a5bae0f&o="] },
+            { id: "udaipur-8", name: "Hilltop Palace - Best Located Lake Facing Hotel In Udaipur", type: "Premium Hotel", rating: "3.9★ (3734 Ratings)", price: 3290, images: ["https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/b2/50/65/aerial-view.jpg?w=1200&h=-1&s=1"] },
+            { id: "udaipur-9", name: "Moustache Select Udaipur", type: "PG/Hostel", rating: "4.4★ (809 Ratings)", price: 2106, images: ["/moustache.jpg"] },
+            { id: "udaipur-10", name: "Tripli Hotels Shaurya Residency", type: "Premium Hotel", rating: "3.8★", price: 1223, images: ["https://pix10.agoda.net/hotelImages/12034018/-1/c03c2e35131e114c341d88dba7ff47b5.jpg?ca=10&ce=1&s=1024x768&isSkia=true"] },
+            { id: "udaipur-11", name: "Radisson Blu Udaipur Palace Resort and Spa", type: "Heritage Palace", rating: "3.8★ (8826 Ratings)", price: 9965, images: ["https://pix10.agoda.net/hotelImages/297/297505/297505_16102812500048218636.jpg?ca=6&ce=1&s=1024x768"] },
+            { id: "udaipur-12", name: "Shalom Backpackers Udaipur | Rooms & Dorms", type: "PG/Hostel", rating: "3.8★ (910 Ratings)", price: 309, images: ["https://cf.bstatic.com/xdata/images/hotel/max1024x768/291528593.jpg?k=c5e191d381267a3c0eac271fde71920f3c17deb4bb55f24d49a028b7ca221614&o="] },
+            { id: "udaipur-13", name: "Raffles Udaipur", type: "Heritage Palace", rating: "4.8★ (166 Ratings)", price: 31467, images: ["https://media.cntraveler.com/photos/624a17a679f8935aaa2ef048/16:9/w_2560%2Cc_limit/Raffles%2520Udaipur%2520Resort_Drone%2520Shot%2520of%2520Raffles%2520Udaipur.jpg"] },
+            { id: "udaipur-14", name: "Jaisamand Island Resort", type: "Luxury Resort", rating: "4.4★ (1860 Ratings)", price: 12321, images: ["https://www.jaisamand.co.in/images/gallery/aerial-view/06.jpg"] },
+            { id: "udaipur-15", name: "Hotel City Express by Downtown", type: "Premium Hotel", rating: "4.0★ (1027 Ratings)", price: 1860, images: ["https://r2imghtlak.mmtcdn.com/r2-mmt-htl-image/htl-imgs/202207121517401717-4f91fc0c252f11edb4790a58a9feac02.jpg"] },
+            { id: "udaipur-16", name: "The Lalit Laxmi vilas palace", type: "Heritage Palace", rating: "4.4★ (1594 Ratings)", price: 11173, images: ["https://pix10.agoda.net/hotelImages/154801/-1/0d824d21a31594974d4fae107a8c2e32.jpg?ca=7&ce=1&s=1024x768"] },
+            { id: "udaipur-17", name: "Taj Fateh Prakash Palace, Udaipur", type: "Heritage Palace", rating: "4.6★ (652 Ratings)", price: 26312, images: ["https://media-cdn.tripadvisor.com/media/photo-s/29/29/1f/5c/winter-exterior-view.jpg"] },
+            { id: "udaipur-18", name: "The Oberoi Udaivilas", type: "Heritage Palace", rating: "4.8★ (491 Ratings)", price: 24977, images: ["https://www.oberoihotels.com/-/media/oberoi-hotels/website-images/the-oberoi-udaivilas-udaipur/gallery/featured/udaivilas-gallery-featured-1-aerial-view-724x407.jpg"] },
+            { id: "udaipur-19", name: "Mementos by ITC Hotels Ekaaya Udaipur", type: "Luxury Resort", rating: "4.8★ (91 Ratings)", price: 36992, images: ["https://www.itchotels.com/content/dam/itchotels/in/umbrella/mementos/hotels/mementosekaaya-udaipur/overview/headmast/d/drone-shot.jpg"] },
 
-            { id: "udaipur-21", name: "The Leela Palace Udaipur", type: "Heritage Palace", rating: "4.7★ (458 Ratings)", price: 37367, images: ["/leela-palace-udaipur.png"] },
-            { id: "udaipur-22", name: "Taj Lake Palace, Udaipur", type: "Heritage Palace", rating: "4.7★ (774 Ratings)", price: 37249, images: ["/taj-lake-palace-udaipur.jpg"] }
+            { id: "udaipur-21", name: "The Leela Palace Udaipur", type: "Heritage Palace", rating: "4.7★ (458 Ratings)", price: 37367, images: ["https://www.theluxevoyager.com/wp-content/uploads/2018/02/The-Leela-Palace-Udaipur-Exterior.jpg"] },
+            { id: "udaipur-22", name: "Taj Lake Palace, Udaipur", type: "Heritage Palace", rating: "4.7★ (774 Ratings)", price: 37249, images: ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Udaipur_Lake_Palace.jpg/1280px-Udaipur_Lake_Palace.jpg"] },
+            { id: "udaipur-23", name: "The Shikargarh Palace", type: "Premium Hotel", rating: "4.0★ (87 Ratings)", price: 7144, images: ["/shikargarh.jpg"] },
+            { id: "udaipur-24", name: "Badigarh Resort Udaipur", type: "Luxury Resort", rating: "3.0★ (21 Ratings)", price: 10204, images: ["/badigarh.jpg"] },
+            { id: "udaipur-25", name: "Cottage Rivera by VEO - Part of StayVista", type: "Entire 3-Bedroom Villa", rating: "4.5★ (26 Ratings)", price: 17006, images: ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=1024"] },
+            { id: "udaipur-26", name: "Sukh Durga Niwas", type: "Premium Hotel", rating: "3.8★ (10 Ratings)", price: 1286, images: ["/sukh-durga.jpg"] },
+            { id: "udaipur-27", name: "FOOTRA STAY & CAFE", type: "PG/Hostel", rating: "3.8★ (10 Ratings)", price: 1094, images: ["/footra.jpg"] },
+            { id: "udaipur-28", name: "The Fern Residency Udaipur, Series by Marriott", type: "Premium Hotel", rating: "3.9★ (1800 Ratings)", price: 5233, images: ["/fern.jpg"] },
+            { id: "udaipur-29", name: "HOTEL ANGAN", type: "Premium Hotel", rating: "3.2★ (32 Ratings)", price: 592, images: ["/angan.jpg"] },
+            { id: "udaipur-30", name: "Tree of Life Vantara Resort and Spa Udaipur", type: "Luxury Resort", rating: "4.6★ (99 Ratings)", price: 4000, images: ["/vantara.jpg"] },
+            { id: "udaipur-31", name: "Tree of Life Amara Resort & Spa, Udaipur", type: "Luxury Resort", rating: "4.2★ (54 Ratings)", price: 5850, images: ["/amara.jpg"] },
+            { id: "udaipur-32", name: "Chunda Haveli - A Boutique Hotel in Udaipur", type: "Heritage Palace", rating: "4.5★ (305 Ratings)", price: 4470, images: ["/chunda.jpg"] },
+            { id: "udaipur-33", name: "Ramada Encore By Wyndham Udaipur Roopnagar", type: "Premium Hotel", rating: "4.4★ (604 Ratings)", price: 5414, images: ["/ramada.jpg"] },
+            { id: "udaipur-34", name: "Namoka The Fort Resort | Suites with Private Pool & Jacuzzi", type: "Luxury Resort", rating: "4.8★ (15 Ratings)", price: 3855, images: ["/namoka.jpg"] }
           ]
         }
       });
@@ -80,14 +92,14 @@ export async function fetchAccommodations(destination: string): Promise<any> {
         source: "makemytrip-delhi-data",
         data: {
           accommodations: [
-            { id: "delhi-1", name: "StayVista at Amara Oasis", type: "Private Villa", rating: "4.2★", price: 160686, images: ["/amara_oasis.jpg"] },
-            { id: "delhi-2", name: "Ultra Luxury 7BHK Estate I Pool, Grand Lawn and Tubs", type: "Farm House", rating: "New", price: 131873, images: ["/ultra_luxury_estate.png"] },
+            { id: "delhi-1", name: "StayVista at Amara Oasis", type: "Private Villa", rating: "4.2★", price: 160686, images: ["/amara_oasis.png"] },
+            { id: "delhi-2", name: "Ultra Luxury 7BHK Estate I Pool, Grand Lawn and Tubs", type: "Farm House", rating: "New", price: 131873, images: ["/ultra_luxury_estate.jpg"] },
             { id: "delhi-3", name: "Sheher Bagh - 7", type: "Farm House", rating: "New", price: 90353, images: ["/sheher_bagh_7.png"] },
             { id: "delhi-4", name: "Homiestays Blossom valley villa", type: "Private Villa", rating: "New", price: 72798, images: ["/blossom_valley.jpg"] },
-            { id: "delhi-5", name: "10BHk Villa in Punjabi Bagh, Roof, Swimming Pool", type: "Apartment", rating: "New", price: 63111, images: ["/punjabi_bagh_10bhk.png"] },
+            { id: "delhi-5", name: "10BHk Villa in Punjabi Bagh, Roof, Swimming Pool", type: "Apartment", rating: "New", price: 63111, images: ["/punjabi_bagh_10bhk.jpg"] },
 
             { id: "delhi-7", name: "Homiestays Pinewood Farm", type: "Private Villa", rating: "New", price: 52104, images: ["/pinewood_farm.jpg"] },
-            { id: "delhi-8", name: "Green Valley Farmhouse", type: "Farm House", rating: "4.0★", price: 43420, images: ["/green_valley.jpg"] },
+            { id: "delhi-8", name: "Green Valley Farmhouse", type: "Farm House", rating: "4.0★", price: 43420, images: ["/green_valley.png"] },
             { id: "delhi-9", name: "HM Royal", type: "Farm House", rating: "New", price: 39078, images: ["/hm_royal.png"] },
             { id: "delhi-10", name: "Farm 902 Book Your Farm Now", type: "Farm House", rating: "New", price: 34736, images: ["/farm_902.jpg"] },
             { id: "delhi-11", name: "Luxury 4bhk Farm Dreamscape", type: "Farm House", rating: "4.3★", price: 27789, images: ["/dreamscape_farm.jpg"] },

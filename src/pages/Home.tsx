@@ -41,10 +41,27 @@ const Home = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [travelers, setTravelers] = useState(1);
-  const [fromCity, setFromCity] = useState('Delhi');
-  const [toCity, setToCity] = useState('Goa');
+  const [fromCity, setFromCity] = useState(localStorage.getItem('fromCity') || '');
+  const [toCity, setToCity] = useState('');
+
+  const todayDate = new Date().toISOString().split('T')[0];
 
   const budgetPercent = ((budget - 1000) / (500000 - 1000)) * 100;
+
+  const handleTravelersChange = (val: number) => {
+    if (isNaN(val) || val < 1 || val > 12) return;
+    setTravelers(val);
+    if (val === 1) setTripType('Solo');
+    else if (val >= 2 && val <= 4) setTripType('Family');
+    else setTripType('Group');
+  };
+
+  const handleTripTypeClick = (type: string) => {
+    setTripType(type);
+    if (type === 'Solo') setTravelers(1);
+    else if (type === 'Family') setTravelers(4);
+    else if (type === 'Group') setTravelers(6);
+  };
 
   const handlePlanTrip = () => {
     if (!toCity || !startDate || !endDate || !budget) {
@@ -88,55 +105,58 @@ const Home = () => {
             <div className="form-row">
             <div className="form-group">
               <label style={{ color: '#3b82f6' }}>From Origin</label>
-              <div className="input-with-icon" style={{ borderColor: 'rgba(59, 130, 246, 0.3)' }}>
-                <MapPin size={18} style={{ color: '#3b82f6' }} />
-                <select value={fromCity} onChange={(e) => setFromCity(e.target.value)} className="destination-select" style={{ color: '#1e3a8a' }}>
+              <div className="input-with-icon" style={{ borderColor: 'rgba(59, 130, 246, 0.3)', position: 'relative' }}>
+                <MapPin size={18} style={{ color: '#3b82f6', minWidth: '18px' }} />
+                <select value={fromCity} onChange={(e) => { setFromCity(e.target.value); localStorage.setItem('fromCity', e.target.value); }} className="destination-select" style={{ color: '#1e3a8a', paddingRight: '2rem' }}>
+                  <option value="" disabled hidden>Select Origin</option>
                   {destinations.map(dest => (
                     <option key={dest} value={dest}>{dest}</option>
                   ))}
                 </select>
-                <ChevronDown size={18} style={{ color: '#3b82f6' }} />
+                <ChevronDown size={18} style={{ color: '#3b82f6', pointerEvents: 'none', position: 'absolute', right: '1.25rem' }} />
               </div>
             </div>
             <div className="form-group">
               <label style={{ color: '#f59e0b' }}>To Destination</label>
-              <div className="input-with-icon" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-                <MapPin size={18} style={{ color: '#f59e0b' }} />
-                <select value={toCity} onChange={(e) => setToCity(e.target.value)} className="destination-select" style={{ color: '#78350f' }}>
+              <div className="input-with-icon" style={{ borderColor: 'rgba(245, 158, 11, 0.3)', position: 'relative' }}>
+                <MapPin size={18} style={{ color: '#f59e0b', minWidth: '18px' }} />
+                <select value={toCity} onChange={(e) => setToCity(e.target.value)} className="destination-select" style={{ color: '#78350f', paddingRight: '2rem' }}>
+                  <option value="" disabled hidden>Select Destination</option>
                   {destinations.map(dest => (
                     <option key={dest} value={dest}>{dest}</option>
                   ))}
                 </select>
-                <ChevronDown size={18} style={{ color: '#f59e0b' }} />
+                <ChevronDown size={18} style={{ color: '#f59e0b', pointerEvents: 'none', position: 'absolute', right: '1.25rem' }} />
               </div>
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label style={{ color: '#10b981' }}>Arrival</label>
-              <div className="input-with-icon date-input-wrapper" style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
-                <PlaneLanding size={18} style={{ color: '#10b981' }} />
-                <input 
-                  type="date" 
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="styled-date-input"
-                  style={{ color: '#047857' }}
-                />
-              </div>
-            </div>
-            <div className="form-group">
               <label style={{ color: '#8b5cf6' }}>Departure</label>
               <div className="input-with-icon date-input-wrapper" style={{ borderColor: 'rgba(139, 92, 246, 0.3)' }}>
                 <PlaneTakeoff size={18} style={{ color: '#8b5cf6' }} />
                 <input 
                   type="date" 
-                  value={endDate}
-                  min={startDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  value={startDate}
+                  min={todayDate}
+                  onChange={(e) => setStartDate(e.target.value)}
                   className="styled-date-input"
                   style={{ color: '#5b21b6' }}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label style={{ color: '#10b981' }}>Arrival</label>
+              <div className="input-with-icon date-input-wrapper" style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                <PlaneLanding size={18} style={{ color: '#10b981' }} />
+                <input 
+                  type="date" 
+                  value={endDate}
+                  min={startDate || todayDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="styled-date-input"
+                  style={{ color: '#047857' }}
                 />
               </div>
             </div>
@@ -151,10 +171,7 @@ const Home = () => {
                   <input 
                     type="number" 
                     value={travelers} 
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (!isNaN(val) && val >= 1 && val <= 12) setTravelers(val);
-                    }}
+                    onChange={(e) => handleTravelersChange(parseInt(e.target.value))}
                     min="1" 
                     max="12" 
                     className="styled-number-input"
@@ -167,7 +184,7 @@ const Home = () => {
                   min="1" 
                   max="12" 
                   value={travelers} 
-                  onChange={(e) => setTravelers(parseInt(e.target.value))} 
+                  onChange={(e) => handleTravelersChange(parseInt(e.target.value))} 
                   className="budget-slider"
                   style={{ 
                     flex: 1, 
@@ -204,7 +221,7 @@ const Home = () => {
                   whileTap={{ scale: 0.95 }}
                   key={type}
                   className={`trip-type-btn ${tripType === type ? 'active' : ''}`}
-                  onClick={() => setTripType(type)}
+                  onClick={() => handleTripTypeClick(type)}
                 >
                   {type}
                 </motion.button>
