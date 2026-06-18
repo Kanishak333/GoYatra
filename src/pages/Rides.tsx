@@ -19,6 +19,8 @@ import {
   UserPlus,
   CircleDot
 } from 'lucide-react';
+import { fetchAccommodations } from '../services/travelService';
+import { hotelCoordinates } from '../components/UdaipurMap';
 import './Rides.css';
 
 // Fix Leaflet's default icon path issues
@@ -114,6 +116,14 @@ const MapUpdater = ({ pickupCoord, dropoffCoord, mapCenter }: { pickupCoord: [nu
   }, [pickupCoord, dropoffCoord, mapCenter, map]);
   return null;
 };
+
+const PROMO_OFFERS = [
+  "25% off your next ride. Up to ₹500",
+  "Flat ₹150 off on Airport rides",
+  "Get 10% cashback on paying via UPI",
+  "Late night rides: 15% discount after 10 PM",
+  "Weekend Special: Free upgrade to PrimeGo"
+];
 
 interface NearbyCab {
   id: number;
@@ -273,23 +283,50 @@ const Rides: React.FC = () => {
   const [showPickupDropdown, setShowPickupDropdown] = useState(false);
   const [showDropoffDropdown, setShowDropoffDropdown] = useState(false);
 
-  const [recentLocations, setRecentLocations] = useState<LocationSuggestion[]>(() => {
+  const [recentLocations, setRecentLocations] = useState<LocationSuggestion[]>([]);
+
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem('recentRidesLocations');
-      return stored ? JSON.parse(stored) : [];
+      const stored = localStorage.getItem(`recentRidesLocations_${originCity}`);
+      setRecentLocations(stored ? JSON.parse(stored) : []);
     } catch {
-      return [];
+      setRecentLocations([]);
     }
-  });
+  }, [originCity]);
 
   const saveRecentLocation = (s: LocationSuggestion) => {
     setRecentLocations(prev => {
       const filtered = prev.filter(loc => loc.display_name !== s.display_name);
       const newRecents = [s, ...filtered].slice(0, 5); // Keep top 5
-      localStorage.setItem('recentRidesLocations', JSON.stringify(newRecents));
+      localStorage.setItem(`recentRidesLocations_${originCity}`, JSON.stringify(newRecents));
       return newRecents;
     });
   };
+
+  const [cityHotels, setCityHotels] = useState<LocationSuggestion[]>([]);
+
+  useEffect(() => {
+    const loadCityHotels = async () => {
+      try {
+        const res = await fetchAccommodations(originCity);
+        if (res && res.data && res.data.accommodations) {
+          const suggestions = res.data.accommodations
+            .filter((h: any) => hotelCoordinates[h.id])
+            .map((h: any) => ({
+              display_name: `${h.name}, ${originCity}`,
+              lat: hotelCoordinates[h.id][0],
+              lon: hotelCoordinates[h.id][1]
+            }));
+          setCityHotels(suggestions);
+        } else {
+          setCityHotels([]);
+        }
+      } catch {
+        setCityHotels([]);
+      }
+    };
+    loadCityHotels();
+  }, [originCity]);
 
   // Geocode Pickup Search
   useEffect(() => {
@@ -300,8 +337,8 @@ const Rides: React.FC = () => {
     }
     const timer = setTimeout(async () => {
       try {
-        const viewbox = `${mapCenter[1]-0.2},${mapCenter[0]+0.2},${mapCenter[1]+0.2},${mapCenter[0]-0.2}`;
-        const query = encodeURIComponent(pickup.includes(originCity) ? pickup : `${pickup}, ${originCity}`);
+        const viewbox = `${mapCenter[1]-0.5},${mapCenter[0]+0.5},${mapCenter[1]+0.5},${mapCenter[0]-0.5}`;
+        const query = encodeURIComponent(pickup);
         const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&countrycodes=in&viewbox=${viewbox}&bounded=1&format=json&limit=15`);
         const data = await res.json();
         if (data && data.length > 0) {
@@ -311,11 +348,12 @@ const Rides: React.FC = () => {
             lon: parseFloat(d.lon)
           }));
           const uniqueSuggestions = Array.from(new Map(suggestions.map((item: any) => [item.display_name, item])).values()) as LocationSuggestion[];
-          setPickupSuggestions(uniqueSuggestions);
+          const localMatches = cityHotels.filter(h => h.display_name.toLowerCase().includes(pickup.toLowerCase()));
+          setPickupSuggestions([...localMatches, ...uniqueSuggestions].slice(0, 15));
           if (!actualPickupCoord) setShowPickupDropdown(true);
         }
       } catch (err) {}
-    }, 500);
+    }, 150);
     return () => clearTimeout(timer);
   }, [pickup, originCity]);
 
@@ -328,8 +366,8 @@ const Rides: React.FC = () => {
     }
     const timer = setTimeout(async () => {
       try {
-        const viewbox = `${mapCenter[1]-0.2},${mapCenter[0]+0.2},${mapCenter[1]+0.2},${mapCenter[0]-0.2}`;
-        const query = encodeURIComponent(dropoff.includes(originCity) ? dropoff : `${dropoff}, ${originCity}`);
+        const viewbox = `${mapCenter[1]-0.5},${mapCenter[0]+0.5},${mapCenter[1]+0.5},${mapCenter[0]-0.5}`;
+        const query = encodeURIComponent(dropoff);
         const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&countrycodes=in&viewbox=${viewbox}&bounded=1&format=json&limit=15`);
         const data = await res.json();
         if (data && data.length > 0) {
@@ -339,11 +377,12 @@ const Rides: React.FC = () => {
             lon: parseFloat(d.lon)
           }));
           const uniqueSuggestions = Array.from(new Map(suggestions.map((item: any) => [item.display_name, item])).values()) as LocationSuggestion[];
-          setDropoffSuggestions(uniqueSuggestions);
+          const localMatches = cityHotels.filter(h => h.display_name.toLowerCase().includes(dropoff.toLowerCase()));
+          setDropoffSuggestions([...localMatches, ...uniqueSuggestions].slice(0, 15));
           if (!actualDropoffCoord) setShowDropoffDropdown(true);
         }
       } catch (err) {}
-    }, 500);
+    }, 150);
     return () => clearTimeout(timer);
   }, [dropoff, originCity]);
 
@@ -561,6 +600,21 @@ const Rides: React.FC = () => {
     saveRecentLocation(s);
   };
 
+  const [currentOffer, setCurrentOffer] = useState(PROMO_OFFERS[0]);
+
+  useEffect(() => {
+    const updateOffer = () => {
+      // Changes every 3 hours (3 * 60 * 60 * 1000 ms = 10800000 ms)
+      const epoch3Hour = Math.floor(Date.now() / 10800000);
+      const index = epoch3Hour % PROMO_OFFERS.length;
+      setCurrentOffer(PROMO_OFFERS[index]);
+    };
+    
+    updateOffer();
+    const interval = setInterval(updateOffer, 60000); // Re-calculate every minute
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="uber-layout" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
       {/* Top Bar for City Selection */}
@@ -588,7 +642,7 @@ const Rides: React.FC = () => {
                   
                   <div className="promo-tag">
                     <Tag size={16} color="#ea580c" />
-                    25% off your next ride. Up to ₹500 <span style={{ opacity: 0.6, fontSize: '0.8rem', marginLeft: 'auto' }}>ⓘ</span>
+                    {currentOffer} <span style={{ opacity: 0.6, fontSize: '0.8rem', marginLeft: 'auto' }}>ⓘ</span>
                   </div>
 
               <div className="location-inputs-wrapper">
@@ -605,10 +659,14 @@ const Rides: React.FC = () => {
                         if (e.target.value.length < 3) setShowPickupDropdown(true); // show recents
                         else setShowPickupDropdown(false); // will show after debounce
                       }}
-                      onFocus={() => { 
-                        if(pickup.length < 3) setShowPickupDropdown(true); 
-                        else if(pickupSuggestions.length > 0 && !actualPickupCoord) setShowPickupDropdown(true); 
-                        setShowDropoffDropdown(false); 
+                      onClick={() => {
+                        if (showPickupDropdown) {
+                          setShowPickupDropdown(false);
+                        } else {
+                          if (pickup.length < 3) setShowPickupDropdown(true); 
+                          else if (pickupSuggestions.length > 0 && !actualPickupCoord) setShowPickupDropdown(true); 
+                          setShowDropoffDropdown(false); 
+                        }
                       }}
                       placeholder="Pickup"
                       style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: '1rem' }}
@@ -664,10 +722,14 @@ const Rides: React.FC = () => {
                         if (e.target.value.length < 3) setShowDropoffDropdown(true); // show recents
                         else setShowDropoffDropdown(false);
                       }}
-                      onFocus={() => { 
-                        if(dropoff.length < 3) setShowDropoffDropdown(true);
-                        else if(dropoffSuggestions.length > 0 && !actualDropoffCoord) setShowDropoffDropdown(true); 
-                        setShowPickupDropdown(false); 
+                      onClick={() => {
+                        if (showDropoffDropdown) {
+                          setShowDropoffDropdown(false);
+                        } else {
+                          if (dropoff.length < 3) setShowDropoffDropdown(true);
+                          else if (dropoffSuggestions.length > 0 && !actualDropoffCoord) setShowDropoffDropdown(true); 
+                          setShowPickupDropdown(false); 
+                        }
                       }}
                       placeholder="Dropoff"
                       style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', fontSize: '1rem' }}
@@ -860,7 +922,10 @@ const Rides: React.FC = () => {
                       {isCalculating || !distanceKm ? (
                         <span style={{ fontSize: '1rem', color: '#9ca3af', animation: 'pulse 1.5s infinite' }}>Calculating...</span>
                       ) : (
-                        <span>₹{((distanceKm * v.perKmRate) + v.baseFare).toFixed(2)}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
+                          <span>₹{((distanceKm * v.perKmRate) + v.baseFare).toFixed(2)}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>{distanceKm.toFixed(1)} km</span>
+                        </div>
                       )}
                     </div>
                   </div>

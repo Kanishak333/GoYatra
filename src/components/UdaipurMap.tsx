@@ -18,7 +18,7 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 // Map data for Udaipur hotels
-const hotelCoordinates: Record<string, [number, number]> = {
+export const hotelCoordinates: Record<string, [number, number]> = {
   "udaipur-1": [24.5770592, 73.6695341],
   "udaipur-4": [24.5978, 73.6832],
   "udaipur-5": [24.5785, 73.6635],

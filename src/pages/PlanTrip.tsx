@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ArrowRight, Lightbulb, Map as MapIcon, Check, Globe, Heart, Search, MapPin, ChevronRight } from 'lucide-react';
 import { fetchAccommodations } from '../services/travelService';
 import UdaipurMap from '../components/UdaipurMap';
+import TravelTipsModal from '../components/TravelTipsModal';
 
 const udaipurDescriptions: Record<string, string> = {
   "udaipur-1": "Picturesque views of Lake Pichola with sprawling gardens, perfect for a peaceful retreat.",
@@ -68,6 +69,7 @@ const PlanTrip = () => {
   
   // Modal State
   const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false);
+  const [showTipsModal, setShowTipsModal] = useState(false);
 
   // Filter States
   const [selectedStars, setSelectedStars] = useState<string[]>([]);
@@ -352,7 +354,7 @@ const PlanTrip = () => {
             <h1 className="results-title">
               {loading ? 'Searching...' : `${filteredHotels.length} Properties in ${searchedCity || destination}`}
             </h1>
-            <button className="explore-tips-btn mmt-explore-tips">
+            <button className="explore-tips-btn mmt-explore-tips" onClick={() => setShowTipsModal(true)}>
               <Lightbulb size={16} color="#3b82f6" /> Explore Travel Tips <ArrowRight size={14} />
             </button>
           </div>
@@ -580,6 +582,14 @@ const PlanTrip = () => {
             <img src="/rewards-modal.png" alt="GoYatra Circle Rewards" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '12px' }} />
           </div>
         </div>
+      )}
+
+      {/* Travel Tips Modal */}
+      {showTipsModal && (
+        <TravelTipsModal 
+          onClose={() => setShowTipsModal(false)} 
+          city={searchedCity || destination || 'Delhi'} 
+        />
       )}
     </main>
   );

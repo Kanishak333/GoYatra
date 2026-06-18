@@ -100,10 +100,10 @@ export async function fetchAccommodations(destination: string): Promise<any> {
 
             { id: "delhi-7", name: "Homiestays Pinewood Farm", type: "Private Villa", rating: "New", price: 52104, images: ["/pinewood_farm.jpg"] },
             { id: "delhi-8", name: "Green Valley Farmhouse", type: "Farm House", rating: "4.0★", price: 43420, images: ["/green_valley.png"] },
-            { id: "delhi-9", name: "HM Royal", type: "Farm House", rating: "New", price: 39078, images: ["/hm_royal.png"] },
+            { id: "delhi-9", name: "HM Royal", type: "Farm House", rating: "New", price: 39078, images: ["/hm_royal.jpg"] },
             { id: "delhi-10", name: "Farm 902 Book Your Farm Now", type: "Farm House", rating: "New", price: 34736, images: ["/farm_902.jpg"] },
             { id: "delhi-11", name: "Luxury 4bhk Farm Dreamscape", type: "Farm House", rating: "4.3★", price: 27789, images: ["/dreamscape_farm.jpg"] },
-            { id: "delhi-12", name: "Nirvaan Bungalow I Entire 3 BHK Villa", type: "Private Villa", rating: "4.0★", price: 25452, images: ["/nirvaan_bungalow.jpg"] },
+            { id: "delhi-12", name: "Nirvaan Bungalow I Entire 3 BHK Villa", type: "Private Villa", rating: "4.0★", price: 25452, images: ["/nirvaan_bungalow.png"] },
             { id: "delhi-13", name: "Hyatt Delhi Residence, Aerocity", type: "Premium Hotel", rating: "3.8★", price: 24008, images: ["/hyatt_delhi.jpg"] },
             { id: "delhi-14", name: "The Lodhi:A member of The Leading Hotels Of The World", type: "Premium Hotel", rating: "4.4★", price: 23262, images: ["/lodhi_hotel.png"] },
             { id: "delhi-15", name: "Radisson Blu New Delhi Dwarka", type: "Premium Hotel", rating: "3.8★", price: 15662, images: ["/radisson_dwarka.png"] },

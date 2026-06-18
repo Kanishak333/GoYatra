@@ -68,6 +68,10 @@ const Home = () => {
       alert("Please select your destination, travel dates, and budget before proceeding to plan your trip.");
       return;
     }
+    if (fromCity === toCity) {
+      alert("Origin and destination cannot be the same city. Please select different cities.");
+      return;
+    }
     navigate(`/plan-trip?to=${toCity}&from=${fromCity}&start=${startDate}&end=${endDate}&budget=${budget}&travelers=${travelers}`);
   };
 
@@ -110,7 +114,7 @@ const Home = () => {
                 <select value={fromCity} onChange={(e) => { setFromCity(e.target.value); localStorage.setItem('fromCity', e.target.value); }} className="destination-select" style={{ color: '#1e3a8a', paddingRight: '2rem' }}>
                   <option value="" disabled hidden>Select Origin</option>
                   {destinations.map(dest => (
-                    <option key={dest} value={dest}>{dest}</option>
+                    <option key={dest} value={dest} disabled={dest === toCity}>{dest}</option>
                   ))}
                 </select>
                 <ChevronDown size={18} style={{ color: '#3b82f6', pointerEvents: 'none', position: 'absolute', right: '1.25rem' }} />
@@ -123,7 +127,7 @@ const Home = () => {
                 <select value={toCity} onChange={(e) => setToCity(e.target.value)} className="destination-select" style={{ color: '#78350f', paddingRight: '2rem' }}>
                   <option value="" disabled hidden>Select Destination</option>
                   {destinations.map(dest => (
-                    <option key={dest} value={dest}>{dest}</option>
+                    <option key={dest} value={dest} disabled={dest === fromCity}>{dest}</option>
                   ))}
                 </select>
                 <ChevronDown size={18} style={{ color: '#f59e0b', pointerEvents: 'none', position: 'absolute', right: '1.25rem' }} />
